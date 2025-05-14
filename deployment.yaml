@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: simple-webapp
-        image: simple-webapp:latest
+        image: janakniroula/simple-webapp:latest
         ports:
         - containerPort: 8080
