@@ -10,4 +10,12 @@
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
     
+    <servlet>
+        <servlet-name>WelcomeServlet</servlet-name>
+        <servlet-class>com.example.webapp.WelcomeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WelcomeServlet</servlet-name>
+        <url-pattern>/welcome</url-pattern>
+    </servlet-mapping>
 </web-app>
