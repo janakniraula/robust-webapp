@@ -7,18 +7,27 @@ data:
   logstash.yml: |
     http.host: "0.0.0.0"
     xpack.monitoring.elasticsearch.hosts: [ "http://elasticsearch:9200" ]
-  
   logstash.conf: |
     input {
       beats {
         port => 5044
       }
     }
-    
+    filter {
+      if [kubernetes] {
+        mutate {
+          add_field => { "[@metadata][target_index]" => "k8s-%{+YYYY.MM.dd}" }
+        }
+      } else {
+        mutate {
+          add_field => { "[@metadata][target_index]" => "logstash-%{+YYYY.MM.dd}" }
+        }
+      }
+    }
     output {
       elasticsearch {
         hosts => ["elasticsearch:9200"]
-        index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+        index => "%{[@metadata][target_index]}"
       }
     }
 ---
@@ -40,8 +49,6 @@ spec:
       containers:
       - name: logstash
         image: docker.elastic.co/logstash/logstash:8.15.0
-        ports:
-        - containerPort: 5044
         resources:
           limits:
             cpu: "1"
@@ -49,11 +56,16 @@ spec:
           requests:
             cpu: "0.5"
             memory: "512Mi"
+        ports:
+        - containerPort: 5044
+          name: beats
         volumeMounts:
         - name: config-volume
-          mountPath: /usr/share/logstash/config
+          mountPath: /usr/share/logstash/config/logstash.yml
+          subPath: logstash.yml
         - name: pipeline-volume
-          mountPath: /usr/share/logstash/pipeline
+          mountPath: /usr/share/logstash/pipeline/logstash.conf
+          subPath: logstash.conf
       volumes:
       - name: config-volume
         configMap:
@@ -77,6 +89,5 @@ spec:
   selector:
     app: logstash
   ports:
-  - protocol: TCP
-    port: 5044
-    targetPort: 5044
+  - port: 5044
+    name: beats
