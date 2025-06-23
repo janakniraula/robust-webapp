@@ -7,6 +7,6 @@ import jakarta.servlet.http.*;
 public class HelloServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/plain");
-        resp.getWriter().println("Hello, World from Simple Webapp!");
+        resp.getWriter().println("Hello, World from Simple Webapp! This is Version 2 of this Application");
     }
 }
